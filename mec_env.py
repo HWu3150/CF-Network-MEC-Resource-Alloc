@@ -143,7 +143,7 @@ class MECEnv:
     def step(self, actions):
         self._update_channel_state()
         # Compute SINR
-        sinrs = compute_sinr([self.discrete_powers[a] for a in actions], self.h_mk, self.G_mk, self.channel_noise)
+        sinrs = compute_sinr(actions, self.h_mk, self.G_mk, self.channel_noise)
         # Compute transmission rate
         rates = compute_transmission_rates(sinrs, self.bandwidth)
 

@@ -6,7 +6,8 @@ h_mk = np.array([[0.5, 0.7], [0.6, 0.8]])
 G_mk = np.array([[2.0, 1.5], [1.8, 1.2]])
 channel_noise = 0.1
 sinrs = compute_sinr(powers, h_mk, G_mk, channel_noise)
-print(sinrs)
+print("sinr by vec", sinrs)
+print("sinr by iter", compute_sinr(powers, h_mk, G_mk, channel_noise))
 print(compute_transmission_rates(sinrs, bandwidth=BANDWIDTH) / 8 / 1e6)
 
 env = MECEnv(NUM_MDS,
@@ -18,6 +19,11 @@ env = MECEnv(NUM_MDS,
              G,
              DISCRETE_POWERS,
              t)
+
+print(env.h_idx)
+print(env.h_mk)
+print(env.G_mk)
+print(env.d_md)
 
 print(env._get_state())
 env.step([2, 3])
