@@ -17,7 +17,7 @@ CPU_CAPACITY = 1e9
 CYCLES_PER_BIT = 1000
 
 # ----------------------- data to send ---------------------------
-DATA_SIZE = 1e6  # assume all tasks are of this size
+DATA_SIZE = 1e5  # assume all tasks are of this size
 
 # ----------------------- time step length -----------------------
 t = 0.001

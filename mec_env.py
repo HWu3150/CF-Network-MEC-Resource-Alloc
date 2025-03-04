@@ -1,4 +1,8 @@
+from datetime import datetime
+import os
+
 import numpy as np
+import logging
 
 
 def compute_sinr_iter(powers, h_mk, G_mk, channel_noise):
@@ -91,6 +95,20 @@ class MECEnv:
         self.G_mk = np.full((self.num_mds, self.num_aps,), self.G)           # [[G11, G12], [G21, G22], ...]
         self.d_md = np.full(self.num_mds, self.data_size, dtype=int)     # [d1, d2, ...]
 
+        # Log configs
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_dir)
+        log_dir = os.path.join(project_root, "logs")
+        os.makedirs(log_dir, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        log_file = os.path.join(log_dir, f"mec_env_{timestamp}.log")
+        logging.basicConfig(
+            filename=log_file,
+            level=logging.INFO,
+            format="%(message)s",
+            filemode="w"
+        )
+
     def reset(self):
         """
         Reset environment
@@ -163,5 +181,6 @@ class MECEnv:
         # Terminal condition
         # done = np.all(self.d_md == 0) and np.all(self.cpu_cycles == 0)
         done = np.all(self.d_md == 0.)
+        logging.info(f"Step {self.time_step}: Actions = {actions}, State = {self.d_md}, Reward = {reward}, Done = {done}")
 
         return self._get_state(), reward, done

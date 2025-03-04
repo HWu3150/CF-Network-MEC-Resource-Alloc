@@ -1,9 +1,9 @@
-from DQN_agent import DQNAgent
+from DQN.dqn_agent import DQNAgent
 from env_config import *
 from mec_env import MECEnv
 
 # Training params
-episodes = 3
+episodes = 1000
 max_epsilon = 1.0
 min_epsilon = 0.05
 epsilon_decay_rate = 0.0005
@@ -45,4 +45,4 @@ for episode in range(episodes):
         step += 1
 
     if episode % 50 == 0:
-        print(f"Episode: {episode}, Total reward: {total_reward}")
+        print(f"Episode: {episode}, Total reward: {total_reward:.4f}, steps taken: {step}")

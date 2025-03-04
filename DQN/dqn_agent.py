@@ -97,19 +97,22 @@ class DQNAgent:
         # Epsilon decay
         self.epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.epsilon_decay_rate * episode)
 
+        d_md_remaining = state[:self.num_mds]
+
         # state = self.standardize_state(state)
         # Epsilon-greedy
         if np.random.uniform(0, 1) < self.epsilon:
             indices = np.random.choice(len(self.discrete_powers), self.num_mds)  # Explore
-            return np.array([self.discrete_powers[i] for i in indices])
+            return np.array([self.discrete_powers[i] if d_md_remaining[m] > 0 else 0.0 for m, i in enumerate(indices)])
 
         state_tensor = torch.FloatTensor(state).unsqueeze(0)
         with torch.no_grad():
             q_values = self.q_network(state_tensor)  # shape: (1, num_MDs * |action space|)
 
         q_values = q_values.view(self.num_mds, len(self.discrete_powers))
-        print(q_values)
-        actions = [self.discrete_powers[i] for i in np.argmax(q_values.numpy(), axis=-1)]  # Exploit
+        # print(q_values)
+        best_action_indices = np.argmax(q_values.numpy(), axis=-1)
+        actions = [self.discrete_powers[i] if d_md_remaining[m] > 0 else 0.0 for m, i in enumerate(best_action_indices)]  # Exploit
         # print(actions)
         return actions
 
