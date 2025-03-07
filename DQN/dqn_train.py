@@ -3,7 +3,7 @@ from env_config import *
 from mec_env import MECEnv
 
 # Training params
-episodes = 1000
+episodes = 10000
 max_epsilon = 1.0
 min_epsilon = 0.05
 epsilon_decay_rate = 0.0005

@@ -165,7 +165,6 @@ class MECEnv:
         # Compute transmission rate
         rates = compute_transmission_rates(sinrs, self.bandwidth)
 
-        # time_spent = 0.0
         # Update transmission
         for m in range(self.num_mds):
             transmitted = rates[m] * self.t_length
@@ -177,7 +176,8 @@ class MECEnv:
         self.time_step += 1
 
         # Reward function
-        reward = -self.t_length * self.time_step
+        # reward = -self.t_length * self.time_step
+        reward = -1
         # Terminal condition
         # done = np.all(self.d_md == 0) and np.all(self.cpu_cycles == 0)
         done = np.all(self.d_md == 0.)

@@ -3,7 +3,7 @@ NUM_MDS = 2
 NUM_APS = 2
 
 # ----------------------- action space ---------------------------
-DISCRETE_POWERS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]  # action space (discrete)
+DISCRETE_POWERS = [0.4, 0.8]  # action space (discrete)
 P_MAX = 0.8 # action space (continuous)
 
 # ----------------------- channel state --------------------------
@@ -17,7 +17,7 @@ CPU_CAPACITY = 1e9
 CYCLES_PER_BIT = 1000
 
 # ----------------------- data to send ---------------------------
-DATA_SIZE = 1e5  # assume all tasks are of this size
+DATA_SIZE = 1e4  # assume all tasks are of this size
 
 # ----------------------- time step length -----------------------
 t = 0.001

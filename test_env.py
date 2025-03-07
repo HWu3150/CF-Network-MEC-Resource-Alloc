@@ -2,7 +2,7 @@ from mec_env import *
 from env_config import *
 
 powers = np.array([0.8, 0.1])
-powers_low = np.array([0.8, 0.8])
+powers_low = np.array([0.1, 0.1])
 h_mk = np.array([[0.5, 0.5], [0.5, 0.5]])
 G_mk = np.array([[-90, -90], [-90, -90]])
 channel_noise = 0.1
