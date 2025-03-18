@@ -39,7 +39,7 @@ class DQNAgent:
                  action_space_size,
                  max_epsilon,
                  min_epsilon,
-                 epsilon_decay_rate=0.001,
+                 epsilon_decay_rate=0.9,
                  lr=0.001,
                  gamma=0.9,
                  batch_size=32,
@@ -95,7 +95,8 @@ class DQNAgent:
         :return: [index of action for each MD]
         """
         # Epsilon decay
-        self.epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.epsilon_decay_rate * episode)
+        # self.epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) / (1 + np.log(1 + episode))
+        self.epsilon = max(self.min_epsilon, self.max_epsilon * (self.epsilon_decay_rate ** episode))
 
         d_md_remaining = state[:self.num_mds]
 

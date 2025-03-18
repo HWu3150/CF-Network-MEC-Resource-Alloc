@@ -99,6 +99,7 @@ class MECEnv:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.dirname(current_dir)
         log_dir = os.path.join(project_root, "logs")
+        print(log_dir)
         os.makedirs(log_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         log_file = os.path.join(log_dir, f"mec_env_{timestamp}.log")
@@ -164,6 +165,7 @@ class MECEnv:
         sinrs = compute_sinr(actions, self.h_mk, self.G_mk, self.channel_noise)
         # Compute transmission rate
         rates = compute_transmission_rates(sinrs, self.bandwidth)
+        # print(rates)
 
         # Update transmission
         for m in range(self.num_mds):
@@ -181,6 +183,6 @@ class MECEnv:
         # Terminal condition
         # done = np.all(self.d_md == 0) and np.all(self.cpu_cycles == 0)
         done = np.all(self.d_md == 0.)
-        logging.info(f"Step {self.time_step}: Actions = {actions}, State = {self.d_md}, Reward = {reward}, Done = {done}")
+        logging.info(f"Step {self.time_step}: Actions = {actions}, State = {self.d_md}{self.h_mk}, Reward = {reward}")
 
         return self._get_state(), reward, done

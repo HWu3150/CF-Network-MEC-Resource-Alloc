@@ -1,16 +1,17 @@
 from mec_env import *
 from env_config import *
 
-powers = np.array([0.8, 0.1])
-powers_low = np.array([0.1, 0.1])
+powers = np.array([0.8, 0.4])
+powers_low = np.array([0.4, 0.4])
+powers_high = np.array([0.8, 0.8])
 h_mk = np.array([[0.5, 0.5], [0.5, 0.5]])
 G_mk = np.array([[-90, -90], [-90, -90]])
 channel_noise = 0.1
 sinrs = compute_sinr(powers, h_mk, G_mk, channel_noise)
 print("sinr by vec", sinrs)
 # print("sinr by iter", compute_sinr(powers, h_mk, G_mk, channel_noise))
-print("0.8 power trans rate: ", compute_transmission_rates(sinrs, bandwidth=BANDWIDTH))
-print("0.1 power trans rate: ", compute_transmission_rates(compute_sinr(powers_low, h_mk, G_mk, channel_noise), bandwidth=BANDWIDTH))
+print("0.8 0.4 power trans rate: ", compute_transmission_rates(sinrs, bandwidth=BANDWIDTH))
+print("0.4 0.4 power trans rate: ", compute_transmission_rates(compute_sinr(powers_low, h_mk, G_mk, channel_noise), bandwidth=BANDWIDTH))
 
 env = MECEnv(NUM_MDS,
              NUM_APS,
@@ -42,12 +43,12 @@ def test_fixed_power_2_md(power_values):
     while not done:
         d_md_remaining = env.d_md
         actions = power_values
-        if d_md_remaining[0] == 0:
-            actions[0] = 0.
-            actions[1] = 0.8
-        elif d_md_remaining[1] == 0:
-            actions[1] = 0.
-            actions[0] = 0.8
+        # if d_md_remaining[0] == 0:
+        #     actions[0] = 0.
+        #     actions[1] = 0.8
+        # elif d_md_remaining[1] == 0:
+        #     actions[1] = 0.
+        #     actions[0] = 0.8
 
         state, reward, done = env.step(actions)
         total_reward += reward
@@ -57,8 +58,8 @@ def test_fixed_power_2_md(power_values):
     return steps, total_reward
 
 
-# 测试 MD 使用最大功率 (0.8)
 test_fixed_power_2_md(powers)
 
-# 测试 MD 使用最小功率 (0.1)
 test_fixed_power_2_md(powers_low)
+
+test_fixed_power_2_md(powers_high)
