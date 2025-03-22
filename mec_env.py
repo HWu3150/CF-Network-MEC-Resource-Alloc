@@ -72,7 +72,7 @@ class MECEnv:
         # ------------------------------- invariants ---------------------------------------------
         self.channel_state_trans_prob = np.array([               # Markov state transition matrix
             [0.8, 0.2],     # P[h_idx=0 -> (0,1)]
-            [0.7, 0.3],     # P[h_idx=1 -> (0,1)]
+            [0.3, 0.7],     # P[h_idx=1 -> (0,1)]
         ])
         self.num_mds = num_mds
         self.num_aps = num_aps
@@ -93,7 +93,9 @@ class MECEnv:
             for m in range(self.num_mds)
         ])                                                              # [[h11, h12], [h21, h22], ...]
         self.G_mk = np.full((self.num_mds, self.num_aps,), self.G)           # [[G11, G12], [G21, G22], ...]
-        self.d_md = np.full(self.num_mds, self.data_size, dtype=int)     # [d1, d2, ...]
+        self.d_md = np.full(self.num_mds, self.data_size, dtype=float)     # [d1, d2, ...]
+        self.d_md_percent = np.ones(self.num_mds)
+        self.aoi_md = np.zeros(self.num_mds)
 
         # Log configs
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -122,10 +124,12 @@ class MECEnv:
             for m in range(self.num_mds)
         ])  # [[h11, h12], [h21, h22], ...]
         self.G_mk = np.full((self.num_mds, self.num_aps,), self.G)  # [[G11, G12], [G21, G22], ...]
-        self.d_md = np.full(self.num_mds, self.data_size, dtype=int)  # [d1, d2, ...]
+        self.d_md = np.full(self.num_mds, self.data_size, dtype=float)  # [d1, d2, ...]
+        self.d_md_percent = np.ones(self.num_mds)
         # self.d_cu = np.zeros(NUM_MDS) # initial # of bits at CU
         # self.cpu_cycles = np.full(NUM_MDS, DATA_SIZE * CYCLES_PER_BIT)
         self.time_step = 0
+        self.aoi_md = np.zeros(self.num_mds)
         return self._get_state()
 
     def get_env_params(self):
@@ -137,7 +141,8 @@ class MECEnv:
         #                        self.d_md.flatten(),
         #                        self.d_cu.flatten(),
         #                        self.cpu_cycles.flatten()])
-        return tuple(np.concatenate((self.d_md, self.h_mk.ravel())))
+        # return tuple(np.concatenate((self.d_md_percent, self.h_mk.ravel(), self.aoi_md)))
+        return tuple(np.concatenate((self.d_md_percent, self.h_mk.ravel())))
 
     def _update_channel_state(self):
         """
@@ -159,8 +164,12 @@ class MECEnv:
             for k in range(self.num_aps):
                 self.h_mk[m, k] = self.h_values[self.h_idx[m, k]]
 
+    # def quantize_transmitted_bits(self, value, delta=50):
+    #     return np.round(value / delta) * delta
+
     def step(self, actions):
         self._update_channel_state()
+        previous_max_percent = np.max(self.d_md_percent)
         # Compute SINR
         sinrs = compute_sinr(actions, self.h_mk, self.G_mk, self.channel_noise)
         # Compute transmission rate
@@ -169,20 +178,38 @@ class MECEnv:
 
         # Update transmission
         for m in range(self.num_mds):
+            # Quantize
+            # transmitted = rates[m] * self.t_length
             transmitted = rates[m] * self.t_length
             self.d_md[m] = max(0., self.d_md[m] - transmitted)
             # self.d_cu[m] += transmitted
+
+            if self.d_md[m] == 0:
+                self.aoi_md[m] = 0
+                self.d_md[m] = self.data_size
+            else:
+                self.aoi_md[m] += 1
+
+        self.d_md_percent = self.d_md / self.data_size
+        current_max_percent = np.max(self.d_md_percent)
+        # print(self.d_md_percent)
 
         # compute_time = np.max(self.cpu_cycles / CPU_CAPACITY)
         # self.cpu_cycles = np.maximum(0, self.cpu_cycles - CPU_CAPACITY * t)
         self.time_step += 1
 
-        # Reward function
+        # =========================== Reward function ===========================
+        reward = 10 * (previous_max_percent - current_max_percent)
         # reward = -self.t_length * self.time_step
-        reward = -1
-        # Terminal condition
+        # reward = -np.sum(self.aoi_md)
+        reward -= 0.1
+
+        # =========================== Terminal condition ========================
         # done = np.all(self.d_md == 0) and np.all(self.cpu_cycles == 0)
-        done = np.all(self.d_md == 0.)
+        if np.all(self.d_md == 0.):
+            reward += 1.0
+        done = self.time_step >= 50
+        # done = self.time_step >= 50
         logging.info(f"Step {self.time_step}: Actions = {actions}, State = {self.d_md}{self.h_mk}, Reward = {reward}")
 
         return self._get_state(), reward, done

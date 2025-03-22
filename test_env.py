@@ -53,6 +53,7 @@ def test_fixed_power_2_md(power_values):
         state, reward, done = env.step(actions)
         total_reward += reward
         steps += 1
+        # print(state)
 
     print(f"Power: {power_values}, Steps: {steps}, Total Reward: {total_reward:.4f}")
     return steps, total_reward
@@ -60,6 +61,6 @@ def test_fixed_power_2_md(power_values):
 
 test_fixed_power_2_md(powers)
 
-test_fixed_power_2_md(powers_low)
+# test_fixed_power_2_md(powers_low)
 
-test_fixed_power_2_md(powers_high)
+# test_fixed_power_2_md(powers_high)

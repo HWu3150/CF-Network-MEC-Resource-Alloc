@@ -14,10 +14,10 @@ G = -90  # fixed
 
 # ----------------------- CU states ------------------------------
 CPU_CAPACITY = 1e9
-CYCLES_PER_BIT = 1000
+CYCLES_PER_BIT = 10000
 
 # ----------------------- data to send ---------------------------
-DATA_SIZE = 3e3  # assume all tasks are of this size
+DATA_SIZE = 3e4  # assume all tasks are of this size
 
 # ----------------------- time step length -----------------------
 t = 0.001

@@ -41,7 +41,9 @@ for episode in range(episodes):
     while not done:
         action = agent.choose_action(state, episode)
         next_state, reward, done = env.step(action)
-        agent.update(state, action, reward, next_state)
+
+        agent.replay_buffer.push(state, action, reward, next_state)
+        agent.update()
 
         # print(f"Step {step}: Action: {action}, State: {next_state}, Reward: {reward}, Done: {done}")
 
@@ -57,3 +59,5 @@ for episode in range(episodes):
 
     if episode % 50 == 0:
         print(f"Episode: {episode}, Total reward: {total_reward:.4f}, epsilon: {agent.epsilon}")
+
+trajectory_buffer.save("trajectories")

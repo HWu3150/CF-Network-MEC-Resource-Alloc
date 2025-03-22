@@ -1,6 +1,38 @@
 import numpy as np
 
 
+def load(filepath):
+    """
+    Load trajectories.
+    """
+    trajectories = np.load(filepath, allow_pickle=True)
+
+    all_states, all_actions, all_rewards, all_rtg, all_time_steps = [], [], [], [], []
+
+    for trajectory in trajectories:
+        states = trajectory["states"]
+        actions = trajectory["actions"]
+        rewards = trajectory["rewards"]
+
+        # Compute RTG
+        rtg = np.zeros_like(rewards, dtype=np.float32)
+        total_return = 0
+        for t in reversed(range(len(rewards))):
+            total_return += rewards[t]
+            rtg[t] = total_return
+
+        # Time step index
+        time_steps = np.arange(len(states))
+
+        all_states.append(states)
+        all_actions.append(actions)
+        all_rewards.append(rewards)
+        all_rtg.append(rtg)
+        all_time_steps.append(time_steps)
+
+    return all_states, all_actions, all_rewards, all_rtg, all_time_steps
+
+
 class TrajectoryBuffer:
     def __init__(self):
         self.trajectories = []
@@ -35,9 +67,3 @@ class TrajectoryBuffer:
         Save trajectories to file.
         """
         np.save(filename, self.trajectories)
-
-    def load(self, filename):
-        """
-        Read trajectories.
-        """
-        self.trajectories = np.load(filename, allow_pickle=True)

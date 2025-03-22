@@ -6,6 +6,8 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 
+from env_config import *
+
 
 def build_model(input_dim, output_dim, num_mds):
     return nn.Sequential(
@@ -22,7 +24,14 @@ class ReplayBuffer:
         self.buffer = deque(maxlen=capacity)
 
     def push(self, state, action, reward, next_state):
-        self.buffer.append((state, action, reward, next_state))
+        action_indices = []
+        for a in action:
+            if a == 0.0:
+                action_indices.append(0)
+            else:
+                idx = DISCRETE_POWERS.index(a)
+                action_indices.append(idx)
+        self.buffer.append((state, action_indices, reward, next_state))
 
     def sample(self, batch_size):
         batch = random.sample(self.buffer, batch_size)
@@ -117,31 +126,36 @@ class DQNAgent:
         # print(actions)
         return actions
 
-    def update(self, state, actions, reward, next_state):
+    def update(self):
         """
         Update Q network.
-        :param state: current state
-        :param actions: action taken by each MD
-        :param reward: reward received
-        :param next_state: next state
         """
         if len(self.replay_buffer) < self.batch_size:
             return
 
         states, actions, rewards, next_states = self.replay_buffer.sample(batch_size=self.batch_size)
-        # states = torch.FloatTensor([self.standardize_state(s) for s in states])
-        # next_states = torch.FloatTensor([self.standardize_state(s) for s in next_states])
-        actions = torch.LongTensor(actions).unsqueeze(1)
+
+        # Convert to torch tensors
+        states = torch.FloatTensor(states)
+        next_states = torch.FloatTensor(next_states)
+        actions = torch.LongTensor(actions)
         rewards = torch.FloatTensor(rewards)
 
         q_values = self.q_network(states).view(self.batch_size, self.num_mds, len(self.discrete_powers))
-        q_values = q_values.gather(2, actions.unsqueeze(-1)).squeeze(-1)
+        # q_values = q_values.gather(2, actions.unsqueeze(-1)).squeeze(-1)
+        gathered_q_values = []
+        for md_idx in range(self.num_mds):
+            md_actions = actions[:, md_idx].unsqueeze(1)  # [batch_size, 1]
+            md_q_values = q_values[:, md_idx, :].gather(1, md_actions)  # [batch_size, 1]
+            gathered_q_values.append(md_q_values)
+
+        q_values = torch.cat(gathered_q_values, dim=1)  # [batch_size, num_mds]
 
         # Compute target Q values
         with torch.no_grad():
             next_q_values = self.target_network(next_states).view(self.batch_size, self.num_mds, len(self.discrete_powers))
             best_next_q = torch.max(next_q_values, dim=-1)[0]
-            target_q_values = rewards + self.gamma * best_next_q
+            target_q_values = rewards.unsqueeze(1) + self.gamma * best_next_q
 
         # Compute loss
         loss = self.loss_fn(q_values, target_q_values)
