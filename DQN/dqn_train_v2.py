@@ -12,8 +12,8 @@ model = DQN(
     "MlpPolicy",
     env,
     learning_rate=0.001,
-    buffer_size=50000,
-    learning_starts=1000,
+    buffer_size=100000,
+    learning_starts=10000,
     batch_size=32,
     gamma=0.99,
     exploration_fraction=0.2,
@@ -28,7 +28,7 @@ checkpoint_callback = CheckpointCallback(save_freq=5000, save_path='./models/')
 callbacks = [episode_callback, checkpoint_callback]
 
 # Train
-model.learn(total_timesteps=500000, callback=callbacks)
+model.learn(total_timesteps=200000, callback=callbacks)
 
 model.save("dqn_mec_final")
 

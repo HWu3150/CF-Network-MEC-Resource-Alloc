@@ -32,7 +32,7 @@ class MECEnvGym(Env):
         return obs, {}
 
     def step(self, action):
-        # Convert power -> power index
+        # Convert action space # to array of actions
         powers = []
         remaining_action = action
 
@@ -41,11 +41,7 @@ class MECEnvGym(Env):
             power_idx = remaining_action % len(self.discrete_powers)
             remaining_action = remaining_action // len(self.discrete_powers)
 
-            # Check if more data is to be transmitted
-            if self.env.d_md_percent[i] > 0:
-                powers.append(self.discrete_powers[power_idx])
-            else:
-                powers.append(0.0)
+            powers.append(self.discrete_powers[power_idx])
 
         next_state, reward, done = self.env.step(powers)
-        return np.array(next_state, dtype=np.float32), reward, done, False, {}
+        return np.array(next_state, dtype=np.float32), reward, done, False, {}  # Truncated & info(debug)

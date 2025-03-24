@@ -3,7 +3,7 @@ NUM_MDS = 2
 NUM_APS = 2
 
 # ----------------------- action space ---------------------------
-DISCRETE_POWERS = [0.4, 0.8]  # action space (discrete)
+DISCRETE_POWERS = [0.16, 0.32, 0.48, 0.64, 0.8]  # action space (discrete)
 P_MAX = 0.8 # action space (continuous)
 
 # ----------------------- channel state --------------------------
