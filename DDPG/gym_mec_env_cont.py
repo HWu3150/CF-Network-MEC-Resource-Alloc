@@ -4,7 +4,6 @@ from gymnasium import Env, spaces
 import numpy as np
 
 from mec_env import MECEnv
-from env_config import *
 
 
 class MECEnvGymContinuous(Env):

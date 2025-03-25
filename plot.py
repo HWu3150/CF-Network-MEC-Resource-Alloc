@@ -40,23 +40,19 @@ class EpisodeRewardCallback(BaseCallback):
 
         return True
 
-    def plot_rewards(self, save_path=None):
-        """Plot the reward curve and save to file if provided"""
+    def plot_rewards(self, save_path=None, window=10):
         plt.figure(figsize=(12, 6))
-        plt.plot(range(len(self.episode_rewards)), self.episode_rewards)
+        plt.plot(range(len(self.episode_rewards)), self.episode_rewards, label='Episode reward')
         plt.xlabel("Episodes")
         plt.ylabel("Rewards")
         plt.title("Episode Rewards during Training")
 
-        # Calculate moving average if we have enough data
-        if len(self.episode_rewards) > 10:
-            moving_avg = np.convolve(self.episode_rewards,
-                                     np.ones(10) / 10,
-                                     mode='valid')
-            plt.plot(range(9, len(self.episode_rewards)),
+        if len(self.episode_rewards) >= window:
+            moving_avg = np.convolve(self.episode_rewards, np.ones(window) / window, mode='valid')
+            plt.plot(range(window - 1, len(self.episode_rewards)),
                      moving_avg,
                      color='red',
-                     label='10-episode moving average')
+                     label=f'{window}-episode moving average')
             plt.legend()
 
         if save_path:

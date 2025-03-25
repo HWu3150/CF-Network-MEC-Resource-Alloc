@@ -185,11 +185,11 @@ class MECEnv:
             # self.d_cu[m] += transmitted
 
             # MD can transmit a new data packet
-            if self.d_md[m] == 0:
-                self.aoi_md[m] = 0
-                self.d_md[m] = self.data_size
-            else:
-                self.aoi_md[m] += 1
+            # if self.d_md[m] == 0:
+            #     self.aoi_md[m] = 0
+            #     self.d_md[m] = self.data_size
+            # else:
+            #     self.aoi_md[m] += 1
 
         self.d_md_percent = self.d_md / self.data_size
         current_max_percent = np.max(self.d_md_percent)
@@ -200,17 +200,20 @@ class MECEnv:
         self.time_step += 1
 
         # =========================== Reward function ===========================
-        reward = 10 * (previous_max_percent - current_max_percent)
         # reward = -self.t_length * self.time_step
         # reward = -np.sum(self.aoi_md)
-        reward -= 0.1 * np.sum(self.aoi_md)
+
+        # reward = 10 * (previous_max_percent - current_max_percent)
+        # reward -= 0.1 * np.sum(self.aoi_md)
+        reward = -1
+
 
         # =========================== Terminal condition ========================
         # done = np.all(self.d_md == 0) and np.all(self.cpu_cycles == 0)
         # if np.all(self.d_md == 0.):
         #     reward += 1.0
-        done = self.time_step >= 50
         # done = self.time_step >= 50
+        done = np.all(self.d_md == 0)
         logging.info(f"Step {self.time_step}: Actions = {actions}, State = {self.d_md}{self.h_mk}, Reward = {reward}")
 
         return self._get_state(), reward, done

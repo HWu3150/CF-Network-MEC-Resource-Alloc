@@ -1,15 +1,12 @@
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 from stable_baselines3 import DDPG
-from stable_baselines3.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
-from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
-from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3.common.noise import NormalActionNoise
+from stable_baselines3.common.callbacks import CheckpointCallback
 
 from gym_mec_env_cont import MECEnvGymContinuous
 from env_config import *
-from DQN.plot import EpisodeRewardCallback
+from plot import EpisodeRewardCallback
 
 # Create log directory
 log_dir = "logs/"
@@ -92,7 +89,7 @@ model.learn(
 # Save the final model
 model.save("models/ddpg_mec_final")
 
-episode_callback.plot_rewards(save_path="training_rewards.png")
+episode_callback.plot_rewards(save_path="training_rewards.png", window=50)
 
 # Evaluate the model
 # mean_reward, std_reward = evaluate_policy(model, eval_env, n_eval_episodes=100)
